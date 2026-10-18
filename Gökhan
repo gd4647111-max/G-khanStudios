@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GökhanStudios™ | Dijital Okuma Platformu</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --border: #334155;
+      --success: #22c55e;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.6; padding-bottom: 60px; }
+    header { border-bottom: 1px solid var(--border); padding: 16px 20px; background: rgba(15, 23, 42, 0.9); position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.2rem; font-weight: bold; color: var(--text); }
+    .logo span { color: var(--accent); }
+    .nav-btns button { background: transparent; border: 1px solid var(--accent); color: var(--text); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: 8px; }
+    .nav-btns button.active { background: var(--accent); color: var(--bg); }
+    .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+    .hero { text-align: center; margin-bottom: 40px; }
+    .hero h1 { font-size: 2rem; margin-bottom: 10px; }
+    .hero p { color: var(--muted); }
+    .badge { background: rgba(56, 189, 248, 0.1); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+    .card h3 { margin: 8px 0; font-size: 1.2rem; }
+    .card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 16px; }
+    .btn { display: block; width: 100%; text-align: center; background: var(--accent); color: var(--bg); border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; padding: 6px 10px; font-size: 0.8rem; border-radius: 4px; border: none; cursor: pointer; }
+    
+    /* Modal & Panel Stilleri */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; padding: 20px; z-index: 100; }
+    .modal-content { background: var(--card-bg); border: 1px solid var(--border); padding: 24px; border-radius: 10px; max-width: 480px; width: 100%; }
+    .close-btn { float: right; background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer; }
+    input, textarea, select { width: 100%; padding: 10px; margin: 8px 0 16px 0; background: var(--bg); border: 1px solid var(--border); color: #fff; border-radius: 6px; }
+    .alert { background: var(--card-bg); border: 1px solid var(--accent); padding: 12px; border-radius: 6px; margin-bottom: 20px; text-align: center; font-weight: 500; }
+    .hidden { display: none; }
+    
+    /* Admin Paneli Stilleri */
+    .admin-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 30px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid var(--border); padding: 10px; text-align: left; font-size: 0.85rem; }
+    th { background: var(--bg); color: var(--accent); }
+    footer { text-align: center; margin-top: 50px; font-size: 0.8rem; color: var(--muted); }
+    .admin-link { color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 0.75rem; }
+    .empty-msg { text-align: center; color: var(--muted); padding: 40px 20px; background: var(--card-bg); border: 1px dashed var(--border); border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">GÖKHAN<span>STUDIOS™</span></div>
+    <div class="nav-btns">
+      <button id="btnStore" class="active" onclick="switchTab('store')">Mağaza</button>
+      <button id="btnRedeem" onclick="switchTab('redeem')">🔑 Kod Gir</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="alertBox" class="alert hidden"></div>
+
+    <!-- MAĞAZA SEKMESİ (DİNAMİK ESER LİSTESİ) -->
+    <div id="sectionStore">
+      <div class="hero">
+        <span class="badge">Reklamsız & Güvenli</span>
+        <h1>Dijital Okuma Platformu</h1>
+        <p>Eserleri EFT/Havale ile satın alabilir veya onay kodunuzla anında açabilirsiniz.</p>
+      </div>
+
+      <div id="bookGrid" class="grid">
+        <!-- Eserler dinamik olarak buraya eklenecek -->
+      </div>
+      
+      <div id="emptyStoreMsg" class="empty-msg hidden">
+        <h3>📚 Henüz Yayında Bir Eser Yok</h3>
+        <p style="margin-top: 8px;">GökhanStudios™ ekibi yeni eserleri hazırlıyor. Çok yakında burada yayınlanacaktır!</p>
+      </div>
+    </div>
+
+    <!-- ONAY KODU GİRME SEKMESİ -->
+    <div id="sectionRedeem" class="hidden" style="max-width: 450px; margin: 40px auto; background: var(--card-bg); border: 1px solid var(--border); padding: 30px; border-radius: 10px;">
+      <h2 style="margin-bottom: 10px; text-align: center;">Onay Kodunu Kullan</h2>
+      <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; text-align: center;">Ödemeniz onaylandıktan sonra size iletilen özel aktivasyon kodunu girin.</p>
+      <input type="text" id="codeInput" placeholder="Örn: GS-8392-XT">
+      <button class="btn" onclick="verifyCode()">Kodu Onayla ve Aç</button>
+    </div>
+
+    <!-- GİZLİ YÖNETİCİ (ADMİN) PANELİ -->
+    <div id="sectionAdmin" class="hidden">
+      <h2 style="color: var(--accent); margin-bottom: 20px;">🛠️ GökhanStudios™ Yönetim Merkezi</h2>
+
+      <!-- 1. YENİ ESER EKLEME FORMU -->
+      <div class="admin-box">
+        <h3 style="margin-bottom: 15px;">➕ Yeni Eser Yayınla</h3>
+        
+        <label style="font-size:0.8rem; color:var(--muted);">Eser Adı</label>
+        <input type="text" id="newTitle" placeholder="Örn: The Last Lantern / Son Fener">
+
+        <label style="font-size:0.8rem; color:var(--muted);">Tür / Kategori</label>
+        <input type="text" id="newCategory" placeholder="Örn: ROMAN / BİLİM KURGU">
+
+        <label style="font-size:0.8rem; color:var(--muted);">Eser Özet / Açıklama</label>
+        <textarea id="newDesc" rows="3" placeholder="Kitap hakkında kısa bir tanıtım metni..."></textarea>
+
+        <label style="font-size:0.8rem; color:var(--muted);">Fiyat (TL)</label>
+        <input type="number" id="newPrice" placeholder="Örn: 40">
+
+        <button class="btn btn-success" onclick="addNewBook()">🚀 Eseri Mağazada Yayınla</button>
+      </div>
+
+      <!-- 2. YAYINDAKİ ESERLERİ YÖNETME -->
+      <div class="admin-box">
+        <h3 style="margin-bottom: 15px;">📖 Yayındaki Eserler</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Eser Adı</th>
+              <th>Kategori</th>
+              <th>Fiyat</th>
+              <th>İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="adminBookTable">
+            <!-- Kitap yönetimi buraya yüklenecek -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 3. SİPARİŞ & ONAY KODU YÖNETİMİ -->
+      <div class="admin-box">
+        <h3 style="margin-bottom: 15px;">📥 Ödeme Bildirimleri & Onay Kodları</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Müşteri Adı</th>
+              <th>E-posta</th>
+              <th>Eser / Tutar</th>
+              <th>Onay Kodu</th>
+              <th>İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="adminOrderTable">
+            <!-- Siparişler buraya yüklenecek -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÖDEME VE İŞLEM MODALI -->
+  <div id="payModal" class="modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">✕</button>
+      <h3 id="modalTitle" style="margin-bottom: 15px;">Ödeme Adımı</h3>
+      
+      <div style="background: var(--bg); padding: 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.85rem; margin-bottom: 15px;">
+        <strong style="color: var(--accent);">📌 EFT / HAVALE BİLGİLERİ</strong>
+        <p style="margin: 4px 0;">Banka: Ziraat Bankası / Papara</p>
+        <p style="margin: 4px 0;">IBAN: <code>TR00 0000 0000 0000 0000 0000 00</code></p>
+        <p style="color: #ef4444; font-size: 0.75rem; margin-top: 6px;">⚠️ Yalnızca Türkiye içi banka hesapları geçerlidir.</p>
+      </div>
+
+      <div id="formContainer">
+        <label style="font-size: 0.85rem; color: var(--muted);">Ad Soyad</label>
+        <input type="text" id="fullName" placeholder="Adınız Soyadınız">
+        
+        <label style="font-size: 0.85rem; color: var(--muted);">E-posta Adresi (Kod buraya gönderilecek)</label>
+        <input type="email" id="email" placeholder="ornek@gmail.com">
+        
+        <button class="btn" onclick="submitPayment()">Ödemeyi Bildir</button>
+      </div>
+
+      <div id="successMsg" class="hidden" style="text-align: center; padding: 15px 0;">
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">✅</div>
+        <h4>Ödeme Bildiriminiz Alındı!</h4>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-top: 6px;">
+          Transferiniz kontrol edildikten sonra onay kodunuz e-posta ile iletilecektir.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2026 GökhanStudios™. Tüm hakları saklıdır.</p>
+    <p style="margin-top: 8px;"><span class="admin-link" onclick="openAdminLogin()">[Yönetici Girişi]</span></p>
+  </footer>
+
+  <script>
+    // Dinamik Veritabanı Mantığı
+    let books = JSON.parse(localStorage.getItem('gs_books')) || [];
+    let orders = JSON.parse(localStorage.getItem('gs_orders')) || [];
+    let generatedCodes = JSON.parse(localStorage.getItem('gs_codes')) || ["GOKHAN100", "GOKHAN2026"];
+    
+    let selectedProduct = "";
+    let selectedPrice = "";
+    let isUnlocked = false;
+
+    // Sayfa Yüklendiğinde Mağazayı Çalıştır
+    window.onload = function() {
+      renderStore();
+    };
+
+    function switchTab(tab) {
+      document.getElementById('sectionStore').classList.add('hidden');
+      document.getElementById('sectionRedeem').classList.add('hidden');
+      document.getElementById('sectionAdmin').classList.add('hidden');
+      
+      document.getElementById('btnStore').classList.remove('active');
+      document.getElementById('btnRedeem').classList.remove('active');
+
+      if(tab === 'store') {
+        document.getElementById('sectionStore').classList.remove('hidden');
+        document.getElementById('btnStore').classList.add('active');
+        renderStore();
+      } else if(tab === 'redeem') {
+        document.getElementById('sectionRedeem').classList.remove('hidden');
+        document.getElementById('btnRedeem').classList.add('active');
+      } else if(tab === 'admin') {
+        document.getElementById('sectionAdmin').classList.remove('hidden');
+        renderAdminAll();
+      }
+    }
+
+    // Mağazadaki Eserleri Listele
+    function renderStore() {
+      const grid = document.getElementById('bookGrid');
+      const emptyMsg = document.getElementById('emptyStoreMsg');
+      grid.innerHTML = '';
+
+      if(books.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+
+      emptyMsg.classList.add('hidden');
+      books.forEach((b, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div>
+            <span style="color:var(--accent); font-size:0.75rem; font-weight:bold;">${b.category.toUpperCase()}</span>
+            <h3>${b.title}</h3>
+            <p>${b.desc}</p>
+          </div>
+          <div>
+            <div style="font-size:1.1rem; font-weight:bold; margin-bottom:10px;">${b.price} TL</div>
+            ${isUnlocked 
+              ? `<button class="btn btn-success" onclick="readBook('${b.title}')">📖 Hemen Oku / İndir</button>`
+              : `<button class="btn" onclick="openModal('${b.title}', '${b.price} TL')">Satın Al (EFT / Havale)</button>`}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // YÖNETİCİ: Yeni Eser Ekleme
+    function addNewBook() {
+      const title = document.getElementById('newTitle').value.trim();
+      const category = document.getElementById('newCategory').value.trim();
+      const desc = document.getElementById('newDesc').value.trim();
+      const price = document.getElementById('newPrice').value.trim();
+
+      if(!title || !category || !desc || !price) {
+        alert("Lütfen yeni eser için tüm alanları doldurun.");
+        return;
+      }
+
+      const newBook = {
+        id: Date.now(),
+        title: title,
+        category: category,
+        desc: desc,
+        price: price
+      };
+
+      books.push(newBook);
+      localStorage.setItem('gs_books', JSON.stringify(books));
+
+      // Formu temizle
+      document.getElementById('newTitle').value = '';
+      document.getElementById('newCategory').value = '';
+      document.getElementById('newDesc').value = '';
+      document.getElementById('newPrice').value = '';
+
+      renderAdminAll();
+      alert("🎉 Yeni eser başarıyla mağazada yayınlandı!");
+    }
+
+    // YÖNETİCİ: Eser Silme
+    function deleteBook(bookId) {
+      if(confirm("Bu eseri mağazadan kaldırmak istediğinize emin misiniz?")) {
+        books = books.filter(b => b.id !== bookId);
+        localStorage.setItem('gs_books', JSON.stringify(books));
+        renderAdminAll();
+      }
+    }
+
+    function readBook(title) {
+      alert("'" + title + "' eserinin okuma alanına yönlendiriliyorsunuz. Keyifli okumalar!");
+    }
+
+    function openModal(title, price) {
+      selectedProduct = title;
+      selectedPrice = price;
+      document.getElementById('modalTitle').innerText = "Ödeme: " + title + " (" + price + ")";
+      document.getElementById('payModal').style.display = 'flex';
+      document.getElementById('formContainer').classList.remove('hidden');
+      document.getElementById('successMsg').classList.add('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('payModal').style.display = 'none';
+    }
+
+    function submitPayment() {
+      const name = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      if(!name || !email) {
+        alert("Lütfen ad ve e-posta alanlarını doldurun.");
+        return;
+      }
+
+      const newOrder = {
+        id: Date.now(),
+        name: name,
+        email: email,
+        product: selectedProduct,
+        price: selectedPrice,
+        code: null,
+        status: 'Bekliyor'
+      };
+
+      orders.push(newOrder);
+      localStorage.setItem('gs_orders', JSON.stringify(orders));
+
+      document.getElementById('formContainer').classList.add('hidden');
+      document.getElementById('successMsg').classList.remove('hidden');
+      
+      document.getElementById('fullName').value = '';
+      document.getElementById('email').value = '';
+    }
+
+    function verifyCode() {
+      const code = document.getElementById('codeInput').value.trim().toUpperCase();
+      const alertBox = document.getElementById('alertBox');
+      alertBox.classList.remove('hidden');
+
+      if(generatedCodes.includes(code)) {
+        isUnlocked = true;
+        alertBox.innerText = "🎉 Onay kodu kabul edildi! Tüm platform içerikleri açıldı.";
+        alertBox.style.borderColor = "var(--success)";
+        switchTab('store');
+      } else {
+        alertBox.innerText = "❌ Geçersiz veya hatalı onay kodu!";
+        alertBox.style.borderColor = "var(--danger)";
+      }
+    }
+
+    // YÖNETİCİ PANELİ GİRİŞİ
+    function openAdminLogin() {
+      const pass = prompt("Yönetici Parolasını Girin:");
+      if(pass === "gokhan2026") {
+        switchTab('admin');
+      } else if(pass !== null) {
+        alert("Hatalı şifre!");
+      }
+    }
+
+    // YÖNETİCİ: Sipariş Onaylama & Kod Üretme
+    function approveOrder(orderId) {
+      const randomCode = "GS-" + Math.floor(1000 + Math.random() * 9000) + "-" + Math.random().toString(36).substring(2, 4).toUpperCase();
+      
+      orders = orders.map(o => {
+        if(o.id === orderId) {
+          o.status = 'Onaylandı';
+          o.code = randomCode;
+        }
+        return o;
+      });
+
+      generatedCodes.push(randomCode);
+
+      localStorage.setItem('gs_orders', JSON.stringify(orders));
+      localStorage.setItem('gs_codes', JSON.stringify(generatedCodes));
+
+      renderAdminAll();
+      alert("✅ Ödeme onaylandı!\nÜretilen Onay Kodu: " + randomCode + "\n\nBu kodu müşteriye e-posta ile gönderebilirsiniz.");
+    }
+
+    function renderAdminAll() {
+      // 1. Kitapları Tabloya Bas
+      const bookTbody = document.getElementById('adminBookTable');
+      bookTbody.innerHTML = '';
+      if(books.length === 0) {
+        bookTbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--muted);">Henüz eklenmiş eser yok.</td></tr>';
+      } else {
+        books.forEach(b => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${b.title}</strong></td>
+            <td>${b.category}</td>
+            <td>${b.price} TL</td>
+            <td><button class="btn-danger" onclick="deleteBook(${b.id})">Sil</button></td>
+          `;
+          bookTbody.appendChild(tr);
+        });
+      }
+
+      // 2. Siparişleri Tabloya Bas
+      const orderTbody = document.getElementById('adminOrderTable');
+      orderTbody.innerHTML = '';
+      if(orders.length === 0) {
+        orderTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted);">Henüz bildirim yok.</td></tr>';
+      } else {
+        orders.forEach(o => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${o.name}</td>
+            <td>${o.email}</td>
+            <td>${o.product} (${o.price})</td>
+            <td><strong>${o.code ? o.code : 'Bekliyor'}</strong></td>
+            <td>
+              ${o.status === 'Bekliyor' 
+                ? `<button style="background:var(--success); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;" onclick="approveOrder(${o.id})">Onayla & Kod Üret</button>`
+                : `<span style="color:var(--success); font-weight:bold;">✅ Onaylandı</span>`}
+            </td>
+          `;
+          orderTbody.appendChild(tr);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
